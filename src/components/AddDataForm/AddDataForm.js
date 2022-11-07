@@ -1,6 +1,14 @@
 import { useRef } from "react";
 
+import {
+  addDoc,
+  collection,
+  getFirestore,
+} from "firebase/firestore";
+import { app } from "../../services/FirebaseConfig";
+
 const AddDataForm = () => {
+  const coordinateRef = useRef(null);
   const nameRef = useRef(null);
   const ownerRef = useRef(null);
   const addressRef = useRef(null);
@@ -11,7 +19,7 @@ const AddDataForm = () => {
   const imageRef = useRef(null);
   const historicalDataRef = useRef(null);
 
-  function handleCreateData(event) {
+  async function handleCreateData(event) {
     event.preventDefault();
 
     const name = nameRef.current.value;
@@ -23,9 +31,44 @@ const AddDataForm = () => {
     const tumblingType = tumblingTypeRef.current.value;
     const image = imageRef.current.value;
     const historicalData = historicalDataRef.current.value;
+    const coordinate = coordinateRef.current.value;
 
-    
+    if (
+      name &&
+      owner &&
+      address &&
+      conservation &&
+      tumblingDate &&
+      tumblingLaw &&
+      tumblingType &&
+      image &&
+      historicalData &&
+      coordinate
+    ) {
+      await addDoc(collection(db, "tombamento"), {
+        name: name,
+        owner: owner,
+        address: address,
+        conservation: conservation,
+        listed_date: tumblingDate,
+        listed_law: tumblingLaw,
+        listed_type: tumblingType,
+        images: image,
+        historical_data: historicalData,
+        map_position: coordinate
+      });
+
+      returntombamentoData();
+    }
   }
+
+  const db = getFirestore(app)
+
+  const returntombamentoData = () => {
+    const tombamentoRef = collection(db, "tombamento");
+
+    console.log({tombamentoRef})
+  };
 
   return(
     <form
@@ -37,42 +80,49 @@ const AddDataForm = () => {
       }}
       onSubmit={handleCreateData}
     >
-      <label for="name">Nome</label>
+      <label htmlFor="name">Nome</label>
       <input
         type="text"
         placeholder="Nome"
         id="name"
         ref={nameRef}
       />
-      <label for="owner">Proprietário</label>
+      <label htmlFor="owner">Proprietário</label>
       <input
         type="text"
         placeholder="Proprietário"
         id="owner"
         ref={ownerRef}
       />
-      <label for="address">Endereço</label>
+      <label htmlFor="address">Endereço</label>
       <input
         type="text"
         placeholder="Endereço"
         id="address"
         ref={addressRef}
       />
-      <label for="conservation">Conservação</label>
+      <label htmlFor="coordinateRef">Coordenadas</label>
+      <input
+        type="text"
+        placeholder="Coordenadas"
+        id="coordinateRef"
+        ref={coordinateRef}
+      />
+      <label htmlFor="conservation">Conservação</label>
       <input
         type="text"
         placeholder="Conservação"
         id="conservation"
         ref={conservationRef}
       />
-      <label for="tumblingDate">Data de Tombamento</label>
+      <label htmlFor="tumblingDate">Data de Tombamento</label>
       <input
         type="date"
         placeholder="Data de Tombamento"
         id="tumblingDate"
         ref={tumblingDateRef}
       />
-      <label for="tumblingLaw">Lei do Tombamento</label>
+      <label htmlFor="tumblingLaw">Lei do Tombamento</label>
       <input
         type="text"
         placeholder="Lei do Tombamento"
@@ -85,14 +135,14 @@ const AddDataForm = () => {
         <option value="estadual">Estadual</option>
         <option value="municipal">Municipal</option>
       </select>
-      <label for="tumblingImage">Imagem do Tombamento</label>
+      <label htmlFor="tumblingImage">Imagem do Tombamento</label>
       <input
         type="file"
         accept="image/png, image/jpeg"
         id="tumblingImage"
         ref={imageRef}
       />
-      <label for="tumblingData">Dados Históricos</label>
+      <label htmlFor="tumblingData">Dados Históricos</label>
       <input
         type="file"
         accept="image/png, image/jpeg, .doc, .pdf"
